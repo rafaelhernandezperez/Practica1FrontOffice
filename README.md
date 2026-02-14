@@ -18,7 +18,7 @@
 
 ## 2.1 Valoración de un swap usando los datos del ejemplo del Tema 2
 
-##2.2 Calibración de una curva de factores de descuento usando los datos de ejemplo del apartado de ejercicios del tema3
+## 2.2 Calibración de una curva de factores de descuento usando los datos de ejemplo del apartado de ejercicios del tema3
 
 Se valorará
   - La corrección del código
