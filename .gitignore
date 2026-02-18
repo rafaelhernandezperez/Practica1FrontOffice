@@ -1,0 +1,3 @@
+#Ignorar los builds de cmake
+/build/
+/cmake-build-*/
