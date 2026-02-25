@@ -1,3 +1,5 @@
 add_subdirectory(DayCount)
 add_subdirectory(ZeroCouponCurve)
 add_subdirectory(Bond)
+add_subdirectory(GoalSeeker)
+add_subdirectory(Swap)

@@ -3,7 +3,7 @@
 #include <map>
 #include <cmath>
 
-#include <../ZeroCouponCurve/ZerocouponCurve.h>
+#include <../ZeroCouponCurve/ZeroCouponCurve.h>
 #include <Bond/Bond.h>
 
 BOOST_AUTO_TEST_SUITE(bond_suite)
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(bond_price_matches_example)
         {1.5, 0.064},
         {2.0, 0.068}
     };
-    ZerocouponCurve curve(zc);
+    ZeroCouponCurve curve(zc);
 
     // Bono: nominal 100, cupón 6% anual, vencimiento 2y, semestral
     Bond bond(100.0, 0.06, 2.0, 2);

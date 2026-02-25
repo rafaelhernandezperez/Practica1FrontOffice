@@ -28,14 +28,15 @@ CMAKE_ADDR2LINE:FILEPATH=CMAKE_ADDR2LINE-NOTFOUND
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
 
-//No help, variable specified on the command line.
-CMAKE_BUILD_TYPE:STRING=Debug
+//Choose the type of build, options are: None Debug Release RelWithDebInfo
+// MinSizeRel ...
+CMAKE_BUILD_TYPE:STRING=
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
-//No help, variable specified on the command line.
-CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/clang++
+//CXX compiler
+CMAKE_CXX_COMPILER:STRING=/usr/bin/clang++
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=
@@ -52,8 +53,8 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 //Flags used by the CXX compiler during RELWITHDEBINFO builds.
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
-//No help, variable specified on the command line.
-CMAKE_C_COMPILER:FILEPATH=/usr/bin/clang
+//C compiler
+CMAKE_C_COMPILER:STRING=/usr/bin/clang
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=
@@ -88,8 +89,8 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
 //Flags used by the linker during RELWITHDEBINFO builds.
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//No help, variable specified on the command line.
-CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
+//Enable/Disable output of compile commands during generation.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 
 //Value Computed by CMake.
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/CMakeFiles/pkgRedirects
@@ -226,6 +227,9 @@ CMAKE_TAPI:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/tapi
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Dependencies for the target
+bond_LIB_DEPENDS:STATIC=general;zerocouponcurve;
+
 //The directory containing a CMake configuration file for boost_exception.
 boost_exception_DIR:PATH=/usr/local/opt/boost/lib/cmake/boost_exception-1.90.0
 
@@ -244,6 +248,18 @@ sqf_IS_TOP_LEVEL:STATIC=ON
 //Value Computed by CMake
 sqf_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice
 
+//Dependencies for the target
+swap_LIB_DEPENDS:STATIC=general;zerocouponcurve;general;goalseeker;
+
+//Value Computed by CMake
+test_bond_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/Bond/tests
+
+//Value Computed by CMake
+test_bond_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+test_bond_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/Bond/tests
+
 //Value Computed by CMake
 test_daycount_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/DayCount/tests
 
@@ -254,13 +270,31 @@ test_daycount_IS_TOP_LEVEL:STATIC=OFF
 test_daycount_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/DayCount/tests
 
 //Value Computed by CMake
-test_zerocouponcurve_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/Bond/tests
+test_goalseeker_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/GoalSeeker/tests
+
+//Value Computed by CMake
+test_goalseeker_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+test_goalseeker_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/GoalSeeker/tests
+
+//Value Computed by CMake
+test_swap_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/Swap/tests
+
+//Value Computed by CMake
+test_swap_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+test_swap_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/Swap/tests
+
+//Value Computed by CMake
+test_zerocouponcurve_BINARY_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/src/ZeroCouponCurve/tests
 
 //Value Computed by CMake
 test_zerocouponcurve_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-test_zerocouponcurve_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/Bond/tests
+test_zerocouponcurve_SOURCE_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/src/ZeroCouponCurve/tests
 
 
 ########################
@@ -329,6 +363,8 @@ CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_EXE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_EXPORT_COMPILE_COMMANDS
+CMAKE_EXPORT_COMPILE_COMMANDS-ADVANCED:INTERNAL=1
 //Name of external makefile project generator.
 CMAKE_EXTRA_GENERATOR:INTERNAL=
 //Name of generator.
@@ -363,7 +399,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

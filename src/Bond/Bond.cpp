@@ -1,7 +1,7 @@
 #include "Bond.h"
 #include <stdexcept>
 #include <cmath>
-#include <ZeroCouponCurve/ZerocouponCurve.h>
+#include <ZeroCouponCurve/ZeroCouponCurve.h>
 
 Bond::Bond(double nominal, double annual_coupon_rate, double maturity_years, int coupons_per_year)
 : nominal_(nominal), c_(annual_coupon_rate), T_(maturity_years), m_(coupons_per_year)
@@ -24,7 +24,7 @@ std::vector<double> Bond::payment_times() const
     return times;
 }
 
-double Bond::price(const ZerocouponCurve& curve) const
+double Bond::price(const ZeroCouponCurve& curve) const
 {
     const double dt = 1.0 / static_cast<double>(m_);
     const int n = static_cast<int>(std::round(T_ / dt));
@@ -37,4 +37,19 @@ double Bond::price(const ZerocouponCurve& curve) const
     }
     pv += nominal_ * curve.get_dcf(T_);
     return pv;
+}
+
+std::vector<std::pair<double,double>> Bond::cashflows() const
+{
+    std::vector<std::pair<double,double>> cfs;
+    const double dt = 1.0 / static_cast<double>(m_);
+    const int n = static_cast<int>(std::round(T_ / dt));
+    const double coupon_amount = nominal_ * c_ * dt;
+
+    for (int i = 1; i <= n; ++i) {
+        const double t = i * dt;
+        cfs.push_back({t, coupon_amount});
+    }
+    cfs.back().second += nominal_;
+    return cfs;
 }

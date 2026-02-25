@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-
-class ZerocouponCurve;
+#include <utility>
+#include <ZeroCouponCurve/ZeroCouponCurve.h>
 
 class Bond
 {
@@ -12,10 +12,12 @@ public:
          int coupons_per_year);       // ej: 2 (semestral)
 
     // PV = suma(cupones*DF) + nominal*DF(maturity)
-    double price(const ZerocouponCurve& curve) const;
+    double price(const ZeroCouponCurve& curve) const;
 
     // Para tests/debug
     std::vector<double> payment_times() const;
+
+    std::vector<std::pair<double,double>> cashflows() const;
 
 private:
     double nominal_;
