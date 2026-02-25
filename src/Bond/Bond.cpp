@@ -30,13 +30,13 @@ double Bond::price(const ZeroCouponCurve& curve) const
     const int n = static_cast<int>(std::round(T_ / dt));
     const double coupon_amount = nominal_ * c_ * dt; // cupón por periodo
 
-    double pv = 0.0;
+    double price = 0.0;
     for (int i = 1; i <= n; ++i) {
         const double t = i * dt;
-        pv += coupon_amount * curve.get_dcf(t);
+        price += coupon_amount * curve.get_dcf(t);
     }
-    pv += nominal_ * curve.get_dcf(T_);
-    return pv;
+    price += nominal_ * curve.get_dcf(T_);
+    return price;
 }
 
 std::vector<std::pair<double,double>> Bond::cashflows() const

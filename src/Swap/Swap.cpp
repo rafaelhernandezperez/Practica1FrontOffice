@@ -2,6 +2,7 @@
 #include "FixedLeg.h"
 #include "FloatingLeg.h"
 #include <GoalSeeker/GoalSeeker.h>
+#include <iostream>
 
 Swap::Swap(double nominal,
            double fixed_rate,
@@ -10,12 +11,12 @@ Swap::Swap(double nominal,
 : N_(nominal), r_(fixed_rate), T_(maturity), m_(payments_per_year)
 {}
 
-double Swap::pv(const ZeroCouponCurve& curve) const
+double Swap::price(const ZeroCouponCurve& curve) const
 {
     FixedLeg fixed(N_, r_, T_, m_);
     FloatingLeg floating(N_, T_, m_);
 
-    return floating.pv(curve) - fixed.pv(curve);
+    return floating.price(curve) - fixed.price(curve);
 }
 
 double Swap::par_rate(const ZeroCouponCurve& curve) const
@@ -25,7 +26,7 @@ double Swap::par_rate(const ZeroCouponCurve& curve) const
         FixedLeg fixed(N_, r, T_, m_);
         FloatingLeg floating(N_, T_, m_);
 
-        return floating.pv(curve) - fixed.pv(curve);
+        return fixed.price(curve) - floating.price(curve);
     };
 
     auto res = GoalSeeker::solve(f, 0.05);

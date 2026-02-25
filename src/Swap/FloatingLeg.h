@@ -8,7 +8,7 @@ public:
                 double maturity,
                 int payments_per_year);
 
-    double pv(const ZeroCouponCurve& curve) const;
+    double price(const ZeroCouponCurve& curve) const;
 
 private:
     double N_;

@@ -10,7 +10,7 @@ public:
          double maturity,
          int payments_per_year);
 
-    double pv(const ZeroCouponCurve& curve) const;
+    double price(const ZeroCouponCurve& curve) const;
 
     // Par rate (fixed que hace PV=0)
     double par_rate(const ZeroCouponCurve& curve) const;

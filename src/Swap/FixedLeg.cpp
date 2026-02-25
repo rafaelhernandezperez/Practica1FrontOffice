@@ -9,18 +9,18 @@ FixedLeg::FixedLeg(double nominal,
 : N_(nominal), r_(fixed_rate), T_(maturity), m_(payments_per_year)
 {}
 
-double FixedLeg::pv(const ZeroCouponCurve& curve) const
+double FixedLeg::price(const ZeroCouponCurve& curve) const
 {
     const double dt = 1.0 / m_;
     const int n = static_cast<int>(std::round(T_ / dt));
     const double coupon_amount = N_ * r_ * dt;
 
-    double pv = 0.0;
+    double price = 0.0;
     for (int i = 1; i <= n; ++i) {
         const double t = i * dt;
-        pv += coupon_amount * curve.get_dcf(t);
+        price += coupon_amount * curve.get_dcf(t);
     }
     // En un IRS solo se intercambian cupones, NO el nominal.
     // (Bond sí suma el nominal porque es un instrumento de deuda completo.)
-    return pv;
+    return price;
 }
