@@ -1,23 +1,18 @@
 #pragma once
+#include <memory>
 
 class ZeroCouponCurve;
+class Leg;
 
 class Swap
 {
 public:
-    Swap(double nominal,
-         double fixed_rate,
-         double maturity,
-         int payments_per_year);
+    Swap(std::unique_ptr<Leg> receiver,
+         std::unique_ptr<Leg> payer);
 
     double price(const ZeroCouponCurve& curve) const;
 
-    // Par rate (fixed que hace PV=0)
-    double par_rate(const ZeroCouponCurve& curve) const;
-
 private:
-    double N_;
-    double r_;
-    double T_;
-    int m_;
+    std::unique_ptr<Leg> receiver_;
+    std::unique_ptr<Leg> payer_;
 };
