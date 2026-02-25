@@ -36,7 +36,7 @@ CMAKE_BUILD_TYPE:STRING=
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:STRING=/usr/bin/clang++
+CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=
@@ -54,7 +54,7 @@ CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
 CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 //C compiler
-CMAKE_C_COMPILER:STRING=/usr/bin/clang
+CMAKE_C_COMPILER:FILEPATH=/usr/bin/cc
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=
@@ -96,7 +96,7 @@ CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/Users/rafaelhernandezperez/Desktop/Algoritmos Front-Office/Tema1/Practica1FrontOffice/build/CMakeFiles/pkgRedirects
 
 //Path to a program.
-CMAKE_INSTALL_NAME_TOOL:FILEPATH=/usr/bin/install_name_tool
+CMAKE_INSTALL_NAME_TOOL:FILEPATH=/Users/rafaelhernandezperez/opt/anaconda3/bin/install_name_tool
 
 //Install path prefix, prepended onto install directories.
 CMAKE_INSTALL_PREFIX:PATH=/usr/local
@@ -219,7 +219,7 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 CMAKE_STRIP:FILEPATH=/usr/bin/strip
 
 //Path to a program.
-CMAKE_TAPI:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/tapi
+CMAKE_TAPI:FILEPATH=/Users/rafaelhernandezperez/opt/anaconda3/bin/tapi
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console

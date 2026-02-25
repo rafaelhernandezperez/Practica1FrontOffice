@@ -20,6 +20,7 @@ double FixedLeg::pv(const ZeroCouponCurve& curve) const
         const double t = i * dt;
         pv += coupon_amount * curve.get_dcf(t);
     }
-    pv += N_ * curve.get_dcf(T_);
+    // En un IRS solo se intercambian cupones, NO el nominal.
+    // (Bond sí suma el nominal porque es un instrumento de deuda completo.)
     return pv;
 }
