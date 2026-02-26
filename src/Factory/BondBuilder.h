@@ -3,6 +3,6 @@
 
 class BondBuilder : public InstrumentBuilder {
 public:
-    std::unique_ptr<Instrument>
+    std::unique_ptr<IInstrument>
     build(const InstrumentDescription& desc) const override;
 };

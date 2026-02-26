@@ -2,8 +2,9 @@
 #include <vector>
 #include <utility>
 #include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <Instrument/IInstrument.h>
 
-class Bond
+class Bond : public IInstrument
 {
 public:
     Bond(double nominal,
@@ -12,7 +13,7 @@ public:
          int coupons_per_year);       // ej: 2 (semestral)
 
     // PV = suma(cupones*DF) + nominal*DF(maturity)
-    double price(const ZeroCouponCurve& curve) const;
+    double price(const ZeroCouponCurve& curve) const override;
 
     // Para tests/debug
     std::vector<double> payment_times() const;

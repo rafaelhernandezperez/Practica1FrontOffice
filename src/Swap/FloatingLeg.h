@@ -1,8 +1,8 @@
 #pragma once
 #include <ZeroCouponCurve/ZeroCouponCurve.h>
-#include "Leg.h"
+#include "ILeg.h"
 
-class FloatingLeg : public Leg
+class FloatingLeg : public ILeg
 {
 public:
     FloatingLeg(double nominal,

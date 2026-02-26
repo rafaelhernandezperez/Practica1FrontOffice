@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
-#include "Leg.h"
+#include "ILeg.h"
 
 class ZeroCouponCurve;
 
-class FixedLeg : public Leg
+class FixedLeg : public ILeg
 {
 public:
     FixedLeg(double nominal,

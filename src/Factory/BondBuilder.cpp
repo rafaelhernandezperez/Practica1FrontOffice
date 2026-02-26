@@ -1,9 +1,8 @@
 #include "BondBuilder.h"
 #include <Bond/Bond.h>
 #include "InstrumentDescription.h"
-#include <stdexcept>
 
-std::unique_ptr<Instrument>
+std::unique_ptr<IInstrument>
 BondBuilder::build(const InstrumentDescription& desc) const
 {
     return std::make_unique<Bond>(

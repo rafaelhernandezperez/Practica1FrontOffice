@@ -1,51 +1,72 @@
 #include "daycount.h"
 #include <algorithm>
 
-boost::gregorian::date DayCountCalculator::make_date(const std::string& date)
+using boost::gregorian::date;
+using boost::gregorian::from_string;
+
+boost::gregorian::date DayCountCalculator::make_date(const std::string& dateStr)
 {
-    return boost::gregorian::from_string(date);
+    return from_string(dateStr);
 }
 
-short Actual_360::compute_daycount(const std::string& from, const std::string& to)
+
+double Actual360::yearFraction(const date& from, const date& to) const
 {
-    boost::gregorian::date from_date(boost::gregorian::from_string(from));
-    boost::gregorian::date to_date(boost::gregorian::from_string(to));
-    return compute_daycount(from_date, to_date);
+    return static_cast<double>(compute_daycount(from, to)) / 360.0;
 }
 
-short Actual_360::compute_daycount(const boost::gregorian::date& from,
-                                   const boost::gregorian::date& to)
+long Actual360::compute_daycount(const std::string& from, const std::string& to)
+{
+    return compute_daycount(from_string(from), from_string(to));
+}
+
+long Actual360::compute_daycount(const date& from, const date& to)
 {
     return (to - from).days();
 }
 
-short Thirty_360::compute_daycount(const std::string& from, const std::string& to)
+double Thirty360::yearFraction(const date& from, const date& to) const
 {
-    auto from_date(boost::gregorian::date(boost::gregorian::from_string(from)));
-    auto to_date(boost::gregorian::date(boost::gregorian::from_string(to)));
-    return compute_daycount(from_date, to_date);
+    return static_cast<double>(compute_daycount(from, to)) / 360.0;
 }
 
-short Thirty_360::compute_daycount(const boost::gregorian::date& from,
-                                   const boost::gregorian::date& to)
+long Thirty360::compute_daycount(const std::string& from, const std::string& to)
 {
-    auto from_date(from.year_month_day());
-    auto to_date(to.year_month_day());
-    auto years  = static_cast<short>(to_date.year  - from_date.year);
-    auto months = static_cast<short>(to_date.month - from_date.month);
+    return compute_daycount(from_string(from), from_string(to));
+}
+
+long Thirty360::compute_daycount(const date& from, const date& to)
+{
+    auto from_date = from.year_month_day();
+    auto to_date   = to.year_month_day();
+
+    auto years  = static_cast<long>(to_date.year  - from_date.year);
+    auto months = static_cast<long>(to_date.month - from_date.month);
+
     return compute_daycount(years, months,
-                            static_cast<short>(from_date.day),
-                            static_cast<short>(to_date.day));
+                            static_cast<long>(from_date.day),
+                            static_cast<long>(to_date.day));
 }
 
-short Thirty_360::compute_daycount(short years,
-                                   short months,
-                                   short days_from,
-                                   short days_to)
+long Thirty360::compute_daycount(long years,
+                                 long months,
+                                 long days_from,
+                                 long days_to)
 {
-    return static_cast<short>(
-        (360 * years) + 30 * (months - 1) +
-        std::max<short>(0, static_cast<short>(30 - days_from)) +
-        std::min<short>(30, days_to)
-    );
+    return (360 * years) + 30 * (months - 1) +
+           std::max<long>(0, 30 - days_from) +
+           std::min<long>(30, days_to);
+}
+
+
+std::unique_ptr<IDayCount> DayCountFactory::create(DayCountType type)
+{
+    switch (type) {
+        case DayCountType::Actual360:
+            return std::make_unique<Actual360>();
+        case DayCountType::Thirty360:
+            return std::make_unique<Thirty360>();
+        default:
+            throw std::invalid_argument("Unsupported DayCountType");
+    }
 }

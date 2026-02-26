@@ -1,8 +1,9 @@
 #pragma once
+
 class ZeroCouponCurve;
 
-class Leg {
+class IInstrument {
 public:
-    virtual ~Leg() = default;
+    virtual ~IInstrument() = default;
     virtual double price(const ZeroCouponCurve& curve) const = 0;
 };
