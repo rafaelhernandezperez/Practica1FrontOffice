@@ -9,7 +9,6 @@ boost::gregorian::date DayCountCalculator::make_date(const std::string& dateStr)
     return from_string(dateStr);
 }
 
-
 double Actual360::yearFraction(const date& from, const date& to) const
 {
     return static_cast<double>(compute_daycount(from, to)) / 360.0;
