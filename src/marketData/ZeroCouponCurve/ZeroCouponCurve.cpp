@@ -1,45 +1,47 @@
 #include "ZeroCouponCurve.h"
-#include <cmath>
 
-ZeroCouponCurve::ZeroCouponCurve(const std::map<double, double>& zc_by_maturity)
-: zc_(zc_by_maturity)
+#include <cmath>
+#include <stdexcept>
+#include <utils/DayCount/IDayCount.h>
+
+ZeroCouponCurve::ZeroCouponCurve(Date refDate,
+                                 std::shared_ptr<const IDayCount> dayCount,
+                                 std::map<double, double> zcByTime)
+: refDate_(refDate), dc_(std::move(dayCount)), zc_(std::move(zcByTime))
 {
-    if (zc_.empty())
-        throw std::invalid_argument("ZeroCouponCurve: empty curve");
+    if (!dc_) throw std::invalid_argument("ZeroCouponCurve: dayCount is null");
+    if (zc_.empty()) throw std::invalid_argument("ZeroCouponCurve: curve is empty");
+}
+
+double ZeroCouponCurve::time_from_ref(const Date& d) const
+{
+    if (d < refDate_) throw std::invalid_argument("ZeroCouponCurve: date < refDate");
+    return dc_->yearFraction(refDate_, d);
 }
 
 double ZeroCouponCurve::get_zc(double t) const
 {
-    if (t <= 0.0)
-        throw std::invalid_argument("ZeroCouponCurve::get_zc: t must be > 0");
+    if (t <= 0.0) throw std::invalid_argument("ZeroCouponCurve::get_zc: t must be > 0");
 
-    // Exact match
+    // exacto
     auto it = zc_.find(t);
-    if (it != zc_.end())
-        return it->second;
+    if (it != zc_.end()) return it->second;
 
-    // Interpolar: buscamos el primer punto > t (upper)
+    // interpolación lineal
     auto upper = zc_.upper_bound(t);
-
-    // Si t está fuera del rango, por simplicidad: error (más adelante podrías extrapolar)
     if (upper == zc_.begin() || upper == zc_.end())
-        throw std::out_of_range("ZeroCouponCurve::get_zc: t out of curve range");
+        throw std::out_of_range("ZeroCouponCurve::get_zc: t out of range");
 
     auto lower = std::prev(upper);
 
-    const double t1 = lower->first;
-    const double z1 = lower->second;
-    const double t2 = upper->first;
-    const double z2 = upper->second;
-
-    // Interpolación lineal
+    const double t1 = lower->first, z1 = lower->second;
+    const double t2 = upper->first, z2 = upper->second;
     const double w = (t - t1) / (t2 - t1);
     return z1 + w * (z2 - z1);
 }
 
 double ZeroCouponCurve::get_dcf(double t) const
 {
-    const double zc = get_zc(t);
-    return std::exp(-zc * t);
+    const double z = get_zc(t);
+    return std::exp(-z * t);
 }
-

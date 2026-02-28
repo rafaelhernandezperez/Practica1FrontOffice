@@ -1,20 +1,36 @@
 #pragma once
+
 #include <map>
-#include <stdexcept>
+#include <memory>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
-class ZeroCouponCurve
-{
+class IDayCount;
+
+class ZeroCouponCurve {
 public:
-    // Guarda puntos (T -> zc) donde zc está en tanto por uno (ej: 0.05)
-    explicit ZeroCouponCurve(const std::map<double, double>& zc_by_maturity);
+    using Date = boost::gregorian::date;
 
-    // Tipo cero cupón (interpolación lineal entre puntos)
+    // Curva definida por (T -> zc(T)), con interpolación lineal
+    ZeroCouponCurve(Date refDate,
+                    std::shared_ptr<const IDayCount> dayCount,
+                    std::map<double, double> zcByTime);
+
+    const Date& ref_date() const { return refDate_; }
+
+    // t medido desde refDate usando daycount (lo usa Index y discounting)
+    double time_from_ref(const Date& d) const;
+
+    // ZC y DF
     double get_zc(double t) const;
+    double get_zc(const Date& d) const { return get_zc(time_from_ref(d)); }
 
-    // Discount factor continuo: DF(0,t) = exp(-t * zc(t))
+    // DF = exp(-zc(t)*t)
     double get_dcf(double t) const;
+    double get_dcf(const Date& d) const { return get_dcf(time_from_ref(d)); }
 
 private:
+    Date refDate_;
+    std::shared_ptr<const IDayCount> dc_;
     std::map<double, double> zc_;
 };
 
