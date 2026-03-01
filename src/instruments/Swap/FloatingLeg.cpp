@@ -1,19 +1,52 @@
 #include "FloatingLeg.h"
+#include <utils/DayCount/IDayCount.h>
 #include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
-#include <cmath>
+#include <marketData/Index/Index.h>
+#include <stdexcept>
 
 FloatingLeg::FloatingLeg(double nominal,
-                         double maturity,
-                         int payments_per_year)
-: N_(nominal), T_(maturity), m_(payments_per_year)
-{}
+                         std::shared_ptr<const IDayCount> dayCount,
+                         std::vector<std::pair<Date, Date>> periods,
+                         std::shared_ptr<const Index> index,
+                         bool hasFirstFixing,
+                         double firstFixing,
+                         double spread)
+: N_(nominal),
+  spread_(spread),
+  hasFirstFixing_(hasFirstFixing),
+  firstFixing_(firstFixing),
+  dc_(std::move(dayCount)),
+  index_(std::move(index)),
+  periods_(std::move(periods))
+{
+    if (!dc_) throw std::invalid_argument("FloatingLeg: dayCount null");
+    if (!index_) throw std::invalid_argument("FloatingLeg: index null");
+    if (periods_.empty()) throw std::invalid_argument("FloatingLeg: empty periods");
+}
 
 double FloatingLeg::price(const ZeroCouponCurve& curve) const
 {
-    // El PV del floating leg (sin intercambio de nominal) es:
-    //   sum_i [ N * (DF(t_{i-1})/DF(t_i) - 1) * DF(t_i) ]
-    //   = sum_i [ N * (DF(t_{i-1}) - DF(t_i)) ]
-    //   = N * (DF(0) - DF(T))
-    //   = N * (1 - DF(T))          <- suma telescópica exacta
-    return N_ * (1.0 - curve.get_dcf(T_));
+    double pv = 0.0;
+
+    for (size_t i = 0; i < periods_.size(); ++i)
+    {
+        const Date& start = periods_[i].first;
+        const Date& end   = periods_[i].second;
+
+        const double alpha = dc_->yearFraction(start, end);
+
+        double r = 0.0;
+
+        if (i == 0 && hasFirstFixing_)
+            r = firstFixing_;
+        else
+            r = index_->get_rate(curve, start, end);
+
+        r += spread_;
+
+        const double cf = N_ * r * alpha;
+        pv += cf * curve.get_dcf(end);
+    }
+
+    return pv;
 }

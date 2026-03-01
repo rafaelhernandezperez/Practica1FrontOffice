@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <boost/date_time/gregorian/gregorian.hpp>
 
 struct InstrumentDescription
 {
@@ -10,14 +11,17 @@ struct InstrumentDescription
 
     Type type;
 
-    // Campos comunes
+    // Comunes
     double nominal;
     double maturity;
     int payments_per_year;
 
-    // Solo para bond
+    // Bond
     double coupon_rate;
 
-    // Solo para swap
+    // Swap
     double fixed_rate;
+    boost::gregorian::date start_date;
+    bool has_first_fixing = false;
+    double first_fixing = 0.0;
 };

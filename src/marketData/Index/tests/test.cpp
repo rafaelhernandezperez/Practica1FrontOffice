@@ -21,16 +21,24 @@ BOOST_AUTO_TEST_CASE(constant_zc_gives_constant_forward_after_conversion)
     date ref(2026, 1, 1);
     auto dc = std::make_shared<Actual360>();
 
+    // curva plana 5% (dos nodos)
     const double zc = 0.05;
-    std::map<double,double> zcmap = {{0.5,zc},{10.0,zc}};
-    auto curve = std::make_shared<ZeroCouponCurve>(ref, dc, zcmap);
+    std::map<double,double> zcmap = {
+        {0.5, zc},
+        {10.0, zc}
+    };
 
-    Index eur6m("Euribor6M", curve, 2);
+    ZeroCouponCurve curve(ref, dc, zcmap);
+
+    // Index 6M -> m=2
+    Index eur6m("Euribor6M", 2);
 
     date start = ref + months(12);
     date end   = ref + months(18);
 
-    const double r = eur6m.get_rate(start, end);
+    const double r = eur6m.get_rate(curve, start, end);
+
+    // En curva plana, forward continuo = zc
     const double expected = 2.0 * (std::exp(zc / 2.0) - 1.0);
 
     BOOST_TEST(r == expected, boost::test_tools::tolerance(1e-12));

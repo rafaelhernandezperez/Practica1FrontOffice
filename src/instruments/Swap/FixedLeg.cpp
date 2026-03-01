@@ -1,26 +1,28 @@
 #include "FixedLeg.h"
+#include <utils/DayCount/IDayCount.h>
 #include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
-#include <cmath>
+#include <stdexcept>
 
 FixedLeg::FixedLeg(double nominal,
-                   double fixed_rate,
-                   double maturity,
-                   int payments_per_year)
-: N_(nominal), r_(fixed_rate), T_(maturity), m_(payments_per_year)
-{}
+                   double fixedRate,
+                   std::shared_ptr<const IDayCount> dayCount,
+                   std::vector<std::pair<Date, Date>> periods)
+: N_(nominal), fixed_(fixedRate), dc_(std::move(dayCount)), periods_(std::move(periods))
+{
+    if (!dc_) throw std::invalid_argument("FixedLeg: dayCount is null");
+    if (periods_.empty()) throw std::invalid_argument("FixedLeg: empty periods");
+}
 
 double FixedLeg::price(const ZeroCouponCurve& curve) const
 {
-    const double dt = 1.0 / m_;
-    const int n = static_cast<int>(std::round(T_ / dt));
-    const double coupon_amount = N_ * r_ * dt;
+    double pv = 0.0;
+    for (const auto& p : periods_) {
+        const Date& start = p.first;
+        const Date& end   = p.second;
 
-    double price = 0.0;
-    for (int i = 1; i <= n; ++i) {
-        const double t = i * dt;
-        price += coupon_amount * curve.get_dcf(t);
+        const double alpha = dc_->yearFraction(start, end);
+        const double cf    = N_ * fixed_ * alpha;
+        pv += cf * curve.get_dcf(end); 
     }
-    // En un IRS solo se intercambian cupones, NO el nominal.
-    // (Bond sí suma el nominal porque es un instrumento de deuda completo.)
-    return price;
+    return pv;
 }
