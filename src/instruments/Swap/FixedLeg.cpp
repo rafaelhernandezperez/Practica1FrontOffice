@@ -1,5 +1,5 @@
 #include "FixedLeg.h"
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 #include <cmath>
 
 FixedLeg::FixedLeg(double nominal,

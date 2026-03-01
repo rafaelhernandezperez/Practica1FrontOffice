@@ -1,5 +1,5 @@
 #include "FloatingLeg.h"
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 #include <cmath>
 
 FloatingLeg::FloatingLeg(double nominal,

@@ -15,6 +15,8 @@ public:
                     std::shared_ptr<const IDayCount> dayCount,
                     std::map<double, double> zcByTime);
 
+    explicit ZeroCouponCurve(std::map<double, double> zcByTime);
+
     const Date& ref_date() const { return refDate_; }
 
     // t medido desde refDate usando daycount (lo usa Index y discounting)

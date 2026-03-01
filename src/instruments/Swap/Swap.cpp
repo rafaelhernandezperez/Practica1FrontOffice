@@ -1,7 +1,7 @@
 #include "Swap.h"
 #include "FixedLeg.h"
 #include "FloatingLeg.h"
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 #include <cmath>
 
 Swap::Swap(double nominal,

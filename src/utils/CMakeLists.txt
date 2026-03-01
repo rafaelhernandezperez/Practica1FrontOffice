@@ -1,7 +1,6 @@
-add_library(instruments)
+add_library(utils INTERFACE)
 
-target_include_directories(instruments PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(utils INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(Bond)
-add_subdirectory(Swap)
-add_subdirectory(Factory)
+add_subdirectory(DayCount)
+add_subdirectory(GoalSeeker)

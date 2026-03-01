@@ -3,20 +3,21 @@
 #include <map>
 #include <cmath>
 
-#include <../ZeroCouponCurve/ZeroCouponCurve.h>
-#include <Bond/Bond.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
+#include <instruments/Bond/Bond.h>
 
 BOOST_AUTO_TEST_SUITE(bond_suite)
 
 BOOST_AUTO_TEST_CASE(bond_price_matches_example)
 {
-    // Curva del ejemplo (zc en tanto por uno, cont. comp.)
+    // Curva del ejemplo del Tema 2 (zc en tanto por uno, comp. continua)
     std::map<double, double> zc = {
         {0.5, 0.050},
         {1.0, 0.058},
         {1.5, 0.064},
         {2.0, 0.068}
     };
+
     ZeroCouponCurve curve(zc);
 
     // Bono: nominal 100, cupón 6% anual, vencimiento 2y, semestral
@@ -26,7 +27,7 @@ BOOST_AUTO_TEST_CASE(bond_price_matches_example)
 
     BOOST_TEST_MESSAGE("Bond PV = " << price);
 
-    // El tema da PV aproximado ~98.39 (depende de redondeo)
+    // Valor exacto (del enunciado): ~98.39
     BOOST_TEST(price == 98.39, boost::test_tools::tolerance(5e-3));
 }
 

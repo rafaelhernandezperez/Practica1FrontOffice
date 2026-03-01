@@ -1,5 +1,5 @@
 #include "BondBuilder.h"
-#include <Bond/Bond.h>
+#include <instruments/Bond/Bond.h>
 #include "InstrumentDescription.h"
 
 std::unique_ptr<IInstrument>

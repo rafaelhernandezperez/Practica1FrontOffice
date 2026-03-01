@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include "ILeg.h"
-#include <Instrument/IInstrument.h>
+#include <instruments/Instrument/IInstrument.h>
 
 class ZeroCouponCurve;
 

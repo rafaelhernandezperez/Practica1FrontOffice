@@ -1,5 +1,5 @@
 #pragma once
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 #include "ILeg.h"
 
 class FloatingLeg : public ILeg

@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <Instrument/IInstrument.h>
+#include <instruments/Instrument/IInstrument.h>
 
 struct InstrumentDescription;
 

@@ -1,7 +1,7 @@
 #include "Bond.h"
 #include <stdexcept>
 #include <cmath>
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 
 Bond::Bond(double nominal, double annual_coupon_rate, double maturity_years, int coupons_per_year)
 : nominal_(nominal), c_(annual_coupon_rate), T_(maturity_years), m_(coupons_per_year)

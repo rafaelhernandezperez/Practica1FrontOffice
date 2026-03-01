@@ -19,14 +19,14 @@
 #include <cmath>
 #include <map>
 
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
-#include <Swap/Swap.h>
-#include <Swap/FixedLeg.h>
-#include <Swap/FloatingLeg.h>
-#include <Factory/InstrumentFactory.h>
-#include <Factory/InstrumentDescription.h>
-#include <Factory/SwapBuilder.h>
-#include <Factory/BondBuilder.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
+#include <instruments/Swap/Swap.h>
+#include <instruments/Swap/FixedLeg.h>
+#include <instruments/Swap/FloatingLeg.h>
+#include <instruments/Factory/InstrumentFactory.h>
+#include <instruments/Factory/InstrumentDescription.h>
+#include <instruments/Factory/SwapBuilder.h>
+#include <instruments/Factory/BondBuilder.h>
 
 // Curva del Tema 2 (reutilizada en todos los tests)
 static std::map<double,double> tema2_zc()

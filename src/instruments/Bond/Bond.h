@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include <utility>
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
-#include <Instrument/IInstrument.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
+#include <instruments/Instrument/IInstrument.h>
 
 class Bond : public IInstrument
 {

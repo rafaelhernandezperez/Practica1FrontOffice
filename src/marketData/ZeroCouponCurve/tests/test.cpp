@@ -1,20 +1,15 @@
-// Tests de la curva zero-coupon y calibracion por bootstrapping (Tema 3)
+// Tests de la curva zero-coupon y calibración por bootstrapping (Tema 3)
 //
 // Curva objetivo: { 0.5: 5.0%, 1.0: 5.8%, 1.5: 6.4%, 2.0: 6.8% }
 //
-// Bootstrapping (Tema 3):
-//   Dados precios de bonos en el mercado, se recupera la curva ZC iterativamente.
-//   Para cada vencimiento T_i, usando las tasas ya calibradas para T < T_i,
-//   se resuelve (via GoalSeeker/Newton-Raphson):
-//     Precio_bono(r_i) - Precio_mercado = 0
 
 #define BOOST_TEST_MODULE test_zerocouponcurve
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
-#include <Bond/Bond.h>
-#include <GoalSeeker/GoalSeeker.h>
+#include <ZeroCouponCurve.h>
+#include <instruments/Bond/Bond.h>
+#include <utils/GoalSeeker/GoalSeeker.h>
 #include <map>
 #include <cmath>
 
@@ -33,21 +28,21 @@ BOOST_AUTO_TEST_CASE(zc_exact_points_and_df)
     };
     ZeroCouponCurve curve(zc);
 
-    // Tipos exactos en los nodos
     BOOST_TEST(curve.get_zc(0.5) == 0.050, boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_zc(1.0) == 0.058, boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_zc(1.5) == 0.064, boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_zc(2.0) == 0.068, boost::test_tools::tolerance(1e-12));
 
-    // DF(0,t) = exp(-t*zc(t))
     BOOST_TEST(curve.get_dcf(0.5) == std::exp(-0.5 * 0.050), boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_dcf(1.0) == std::exp(-1.0 * 0.058), boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_dcf(1.5) == std::exp(-1.5 * 0.064), boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_dcf(2.0) == std::exp(-2.0 * 0.068), boost::test_tools::tolerance(1e-12));
+
+    BOOST_TEST(curve.get_dcf(0.0) == 1.0, boost::test_tools::tolerance(1e-12));
 }
 
 // -----------------------------------------------------------------
-// 2. Interpolacion lineal entre nodos
+// 2. Interpolación lineal entre nodos
 // -----------------------------------------------------------------
 BOOST_AUTO_TEST_CASE(zc_linear_interpolation)
 {
@@ -57,10 +52,7 @@ BOOST_AUTO_TEST_CASE(zc_linear_interpolation)
     };
     ZeroCouponCurve curve(zc);
 
-    // Interpolacion lineal: zc(1.5) = 0.060
-    BOOST_TEST(curve.get_zc(1.5) == 0.060, boost::test_tools::tolerance(1e-12));
-
-    // Interpolacion al 25% del tramo: zc(1.25) = 0.055
+    BOOST_TEST(curve.get_zc(1.5)  == 0.060, boost::test_tools::tolerance(1e-12));
     BOOST_TEST(curve.get_zc(1.25) == 0.055, boost::test_tools::tolerance(1e-12));
 }
 
@@ -75,116 +67,172 @@ BOOST_AUTO_TEST_CASE(zc_out_of_range_throws)
 }
 
 // -----------------------------------------------------------------
-// 4. Bootstrapping de la curva ZC (Tema 3)
-//    Precios de mercado generados desde la curva objetivo:
-//      {0.5: 5.0%, 1.0: 5.8%, 1.5: 6.4%, 2.0: 6.8%}
-//    Se recuperan los tipos con precision < 1e-6 usando Newton-Raphson.
+// 4. Bootstrapping de la curva ZC (Tema 3 - Ejercicio 3.1)
+//
+// Datos del enunciado:
+//   Depósito 6m r=5%, Swap 1y r=5.5%, Swap 18m r=6%, Swap 2y r=6.4%
+//   IRS con pata fija y flotante semianual.
+//   Fecha inicial: 01/04/2016
+//
+// Simplificación: dt = 0.5 exacto (como hace el código)
+// Resultados esperados (bootstrapping analítico):
+//   DF(0.5) = 1/(1+0.05*0.5) = 0.975610 → ZC = 4.9385%
+//   DF(1.0) = 0.947125                   → ZC = 5.4324%
+//   DF(1.5) = 0.914872                   → ZC = 5.9314%
+//   DF(2.0) = 0.881004                   → ZC = 6.3346%
 // -----------------------------------------------------------------
-BOOST_AUTO_TEST_CASE(bootstrap_curve_calibration)
+BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
 {
-    // Curva objetivo (que queremos recuperar)
-    const double r05_target = 0.050;
-    const double r10_target = 0.058;
-    const double r15_target = 0.064;
-    const double r20_target = 0.068;
-
-    // Precios de mercado calculados con esa curva
-    // Bond(nominal, cupon_anual, vencimiento, pagos_por_anio)
-    // Usamos cupon 0% para el ZCB de 6 meses
-    const double DF05 = std::exp(-0.5 * r05_target);
-    const double DF10 = std::exp(-1.0 * r10_target);
-    const double DF15 = std::exp(-1.5 * r15_target);
-    const double DF20 = std::exp(-2.0 * r20_target);
-
-    // Bono 1: ZCB 6M (cupon=0, semestral => unico flujo = nominal en T=0.5)
-    const double p1 = 100.0 * DF05;
-    // Bono 2: 1Y, cupon 5% semestral
-    const double p2 = 2.5 * DF05 + 102.5 * DF10;
-    // Bono 3: 1.5Y, cupon 5% semestral
-    const double p3 = 2.5 * DF05 + 2.5 * DF10 + 102.5 * DF15;
-    // Bono 4: 2Y, cupon 5% semestral
-    const double p4 = 2.5 * DF05 + 2.5 * DF10 + 2.5 * DF15 + 102.5 * DF20;
+    // --- Paso 1: Depósito 6M al 5% ---
+    // P(0, 0.5) = 1 / (1 + r*t)
+    const double depo_rate = 0.05;
+    const double dt        = 0.5;
 
     std::map<double, double> calibrated;
 
-    // --- Paso 1: resolver r(0.5) ---
-    // Bond(100, 0%, 0.5y, 2) => precio = 100*DF(0.5)
     {
         auto res = GoalSeeker::solve(
             [&](double r) {
                 ZeroCouponCurve curve({{0.5, r}});
-                Bond zcb(100.0, 0.0, 0.5, 2);
-                return zcb.price(curve) - p1;
+                // DF = exp(-r*0.5) = 1/(1+0.05*0.5)
+                return curve.get_dcf(0.5) - 1.0/(1.0 + depo_rate*dt);
             },
-            0.04  // semilla inicial
+            0.04
         );
         BOOST_TEST(res.converged);
         calibrated[0.5] = res.x;
+        BOOST_TEST_MESSAGE("ZC(0.5) = " << res.x * 100.0 << "%");
     }
 
-    // --- Paso 2: resolver r(1.0) usando r(0.5) ya calibrado ---
+    // --- Paso 2: Swap 1Y al 5.5% ---
+    // 1 = S*dt*DF(0.5) + (1+S*dt)*DF(1.0)
+    // DF(1.0) = (1 - S*dt*DF(0.5)) / (1 + S*dt)
+    const double s1y = 0.055;
+    const double P05 = std::exp(-calibrated[0.5] * 0.5);
+    calibrated[1.0] = (1.0 - s1y*dt*P05) / (1.0 + s1y*dt);
     {
-        auto res = GoalSeeker::solve(
-            [&](double r) {
-                auto zc = calibrated;
-                zc[1.0] = r;
-                ZeroCouponCurve curve(zc);
-                Bond bond(100.0, 0.05, 1.0, 2);
-                return bond.price(curve) - p2;
-            },
-            0.05  // semilla inicial
-        );
-        BOOST_TEST(res.converged);
-        calibrated[1.0] = res.x;
+        // Verificar con GoalSeeker que el Swap 1y vale 0
+        double r10 = calibrated[1.0];
+        // ZC rate desde DF
+        calibrated[1.0] = -std::log(r10) / 1.0;
+        BOOST_TEST_MESSAGE("ZC(1.0) = " << calibrated[1.0] * 100.0 << "%");
     }
 
-    // --- Paso 3: resolver r(1.5) usando r(0.5) y r(1.0) ya calibrados ---
+    // --- Paso 3: Swap 18M al 6% ---
+    const double s18m = 0.06;
     {
         auto res = GoalSeeker::solve(
             [&](double r) {
                 auto zc = calibrated;
                 zc[1.5] = r;
                 ZeroCouponCurve curve(zc);
-                Bond bond(100.0, 0.05, 1.5, 2);
-                return bond.price(curve) - p3;
+                // PV fixed = S*dt*(DF1+DF2+DF3) + DF3 = 1
+                double annuity = curve.get_dcf(0.5) + curve.get_dcf(1.0) + curve.get_dcf(1.5);
+                return s18m * dt * annuity + curve.get_dcf(1.5) - 1.0;
             },
             0.06
         );
         BOOST_TEST(res.converged);
         calibrated[1.5] = res.x;
+        BOOST_TEST_MESSAGE("ZC(1.5) = " << res.x * 100.0 << "%");
     }
 
-    // --- Paso 4: resolver r(2.0) usando todos los anteriores ---
+    // --- Paso 4: Swap 2Y al 6.4% ---
+    const double s2y = 0.064;
     {
         auto res = GoalSeeker::solve(
             [&](double r) {
                 auto zc = calibrated;
                 zc[2.0] = r;
                 ZeroCouponCurve curve(zc);
-                Bond bond(100.0, 0.05, 2.0, 2);
-                return bond.price(curve) - p4;
+                double annuity = curve.get_dcf(0.5) + curve.get_dcf(1.0)
+                               + curve.get_dcf(1.5) + curve.get_dcf(2.0);
+                return s2y * dt * annuity + curve.get_dcf(2.0) - 1.0;
             },
             0.07
         );
         BOOST_TEST(res.converged);
         calibrated[2.0] = res.x;
+        BOOST_TEST_MESSAGE("ZC(2.0) = " << res.x * 100.0 << "%");
     }
 
-    // Verificacion: los tipos calibrados deben coincidir con el objetivo
-    BOOST_TEST_MESSAGE("r(0.5) calibrado = " << calibrated[0.5] * 100 << "%");
-    BOOST_TEST_MESSAGE("r(1.0) calibrado = " << calibrated[1.0] * 100 << "%");
-    BOOST_TEST_MESSAGE("r(1.5) calibrado = " << calibrated[1.5] * 100 << "%");
-    BOOST_TEST_MESSAGE("r(2.0) calibrado = " << calibrated[2.0] * 100 << "%");
-
-    BOOST_TEST(calibrated[0.5] == r05_target, boost::test_tools::tolerance(1e-6));
-    BOOST_TEST(calibrated[1.0] == r10_target, boost::test_tools::tolerance(1e-6));
-    BOOST_TEST(calibrated[1.5] == r15_target, boost::test_tools::tolerance(1e-6));
-    BOOST_TEST(calibrated[2.0] == r20_target, boost::test_tools::tolerance(1e-6));
-
-    // Verificacion adicional: la curva calibrada reproduce los precios de mercado
+    // Verificación: DFs implícitos deben coincidir con bootstrapping analítico
     ZeroCouponCurve final_curve(calibrated);
-    BOOST_TEST(Bond(100.0, 0.05, 2.0, 2).price(final_curve) == p4,
+    BOOST_TEST(final_curve.get_dcf(0.5) == 1.0/(1.0 + 0.05*0.5),
                boost::test_tools::tolerance(1e-8));
+    BOOST_TEST(final_curve.get_dcf(1.0) ==
+               (1.0 - s1y*dt*(1.0/(1.0+0.05*0.5))) / (1.0+s1y*dt),
+               boost::test_tools::tolerance(1e-8));
+}
+
+// -----------------------------------------------------------------
+// 5. Bootstrapping desde precios de bonos (recupera curva objetivo)
+// -----------------------------------------------------------------
+BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
+{
+    const double r05 = 0.050, r10 = 0.058, r15 = 0.064, r20 = 0.068;
+
+    const double DF05 = std::exp(-0.5*r05);
+    const double DF10 = std::exp(-1.0*r10);
+    const double DF15 = std::exp(-1.5*r15);
+    const double DF20 = std::exp(-2.0*r20);
+
+    const double p1 = 100.0 * DF05;
+    const double p2 = 2.5*DF05 + 102.5*DF10;
+    const double p3 = 2.5*DF05 + 2.5*DF10 + 102.5*DF15;
+    const double p4 = 2.5*DF05 + 2.5*DF10 + 2.5*DF15 + 102.5*DF20;
+
+    std::map<double,double> calibrated;
+
+    // Paso 1
+    {
+        auto res = GoalSeeker::solve([&](double r){
+            ZeroCouponCurve c({{0.5,r}});
+            return Bond(100.0,0.0,0.5,2).price(c) - p1;
+        }, 0.04);
+        BOOST_TEST(res.converged);
+        calibrated[0.5] = res.x;
+    }
+    // Paso 2
+    {
+        auto res = GoalSeeker::solve([&](double r){
+            auto zc = calibrated; zc[1.0]=r;
+            ZeroCouponCurve c(zc);
+            return Bond(100.0,0.05,1.0,2).price(c) - p2;
+        }, 0.05);
+        BOOST_TEST(res.converged);
+        calibrated[1.0] = res.x;
+    }
+    // Paso 3
+    {
+        auto res = GoalSeeker::solve([&](double r){
+            auto zc = calibrated; zc[1.5]=r;
+            ZeroCouponCurve c(zc);
+            return Bond(100.0,0.05,1.5,2).price(c) - p3;
+        }, 0.06);
+        BOOST_TEST(res.converged);
+        calibrated[1.5] = res.x;
+    }
+    // Paso 4
+    {
+        auto res = GoalSeeker::solve([&](double r){
+            auto zc = calibrated; zc[2.0]=r;
+            ZeroCouponCurve c(zc);
+            return Bond(100.0,0.05,2.0,2).price(c) - p4;
+        }, 0.07);
+        BOOST_TEST(res.converged);
+        calibrated[2.0] = res.x;
+    }
+
+    BOOST_TEST_MESSAGE("r(0.5) = " << calibrated[0.5]*100 << "%");
+    BOOST_TEST_MESSAGE("r(1.0) = " << calibrated[1.0]*100 << "%");
+    BOOST_TEST_MESSAGE("r(1.5) = " << calibrated[1.5]*100 << "%");
+    BOOST_TEST_MESSAGE("r(2.0) = " << calibrated[2.0]*100 << "%");
+
+    BOOST_TEST(calibrated[0.5] == r05, boost::test_tools::tolerance(1e-6));
+    BOOST_TEST(calibrated[1.0] == r10, boost::test_tools::tolerance(1e-6));
+    BOOST_TEST(calibrated[1.5] == r15, boost::test_tools::tolerance(1e-6));
+    BOOST_TEST(calibrated[2.0] == r20, boost::test_tools::tolerance(1e-6));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

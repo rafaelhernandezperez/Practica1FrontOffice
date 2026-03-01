@@ -1,5 +1,5 @@
 #include "SwapBuilder.h"
-#include <Swap/Swap.h>
+#include <instruments/Swap/Swap.h>
 #include "InstrumentDescription.h"
 
 std::unique_ptr<IInstrument>

@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE test_goalseeker
 #include <boost/test/unit_test.hpp>
 #include <cmath>
-#include <GoalSeeker/GoalSeeker.h>
+#include <GoalSeeker.h>
 
 BOOST_AUTO_TEST_SUITE(goalseeker_suite)
 
