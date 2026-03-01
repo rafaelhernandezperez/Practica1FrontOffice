@@ -5,8 +5,6 @@
 
 class ZeroCouponCurve;
 
-// Convención para replicar el Excel:
-// Valor Swap = PV(pata flotante) - PV(pata fija)
 class Swap : public IInstrument
 {
 public:

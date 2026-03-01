@@ -25,24 +25,24 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
 {
     using boost::gregorian::date;
 
-    // Inputs Excel
+    // Inputs
     const double N = 100000000.0;
     const double fixedRate = 0.05;
-    const double firstFixing6m = 0.048; // fijado en Excel para el primer periodo
+    const double firstFixing6m = 0.048; 
     const int m = 2; // 6M
 
     // Fecha valoración
     const date ref(2016, 4, 1);
     auto dc = std::make_shared<Actual360>();
 
-    // Fechas de pago del Excel (son también los finales de periodo)
+    // Fechas de pago
     const date d1(2016, 10, 3);
     const date d2(2017, 4, 3);
     const date d3(2017, 10, 2);
     const date d4(2018, 4, 2);
 
     // Curva ZC del Excel (en esas fechas)
-    // Excel usa T=(pay-ref)/360; nosotros lo reproducimos con Actual/360
+    // Actual/360
     std::map<double,double> zc_by_T;
     zc_by_T[dc->yearFraction(ref, d1)] = 0.0474;
     zc_by_T[dc->yearFraction(ref, d2)] = 0.0500;
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
 
     const double pvSwap = swap.price(*curve);
 
-    // Valor del Excel (sheet ValoraciónSwap)
+    // Valor del Excel
     const double expected = 497431.43214853667;
 
     BOOST_TEST(pvSwap == expected, boost::test_tools::tolerance(1e-10));

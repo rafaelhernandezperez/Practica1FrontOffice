@@ -5,8 +5,6 @@
 #include "InstrumentDescription.h"
 #include "InstrumentBuilder.h"
 
-// Factory singleton: registra builders y crea instrumentos por tipo.
-// Patron Factory Method + Singleton.
 class InstrumentFactory
 {
 public:

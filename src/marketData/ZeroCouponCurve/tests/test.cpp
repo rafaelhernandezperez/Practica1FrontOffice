@@ -1,8 +1,3 @@
-// Tests de la curva zero-coupon y calibración por bootstrapping (Tema 3)
-//
-// Curva objetivo: { 0.5: 5.0%, 1.0: 5.8%, 1.5: 6.4%, 2.0: 6.8% }
-//
-
 #define BOOST_TEST_MODULE test_zerocouponcurve
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
@@ -15,9 +10,8 @@
 
 BOOST_AUTO_TEST_SUITE(zc_curve_suite)
 
-// -----------------------------------------------------------------
-// 1. Factores de descuento exactos en los nodos de la curva
-// -----------------------------------------------------------------
+
+// Factores de descuento exactos en los nodos de la curva
 BOOST_AUTO_TEST_CASE(zc_exact_points_and_df)
 {
     std::map<double, double> zc = {
@@ -41,9 +35,8 @@ BOOST_AUTO_TEST_CASE(zc_exact_points_and_df)
     BOOST_TEST(curve.get_dcf(0.0) == 1.0, boost::test_tools::tolerance(1e-12));
 }
 
-// -----------------------------------------------------------------
-// 2. Interpolación lineal entre nodos
-// -----------------------------------------------------------------
+
+// Interpolación lineal entre nodos
 BOOST_AUTO_TEST_CASE(zc_linear_interpolation)
 {
     std::map<double, double> zc = {
@@ -56,9 +49,7 @@ BOOST_AUTO_TEST_CASE(zc_linear_interpolation)
     BOOST_TEST(curve.get_zc(1.25) == 0.055, boost::test_tools::tolerance(1e-12));
 }
 
-// -----------------------------------------------------------------
-// 3. Error al consultar fuera del rango de la curva
-// -----------------------------------------------------------------
+// Error al consultar fuera del rango de la curva
 BOOST_AUTO_TEST_CASE(zc_out_of_range_throws)
 {
     ZeroCouponCurve curve({ {1.0, 0.05}, {2.0, 0.07} });
@@ -66,24 +57,9 @@ BOOST_AUTO_TEST_CASE(zc_out_of_range_throws)
     BOOST_CHECK_THROW(curve.get_zc(0.5), std::out_of_range);
 }
 
-// -----------------------------------------------------------------
-// 4. Bootstrapping de la curva ZC (Tema 3 - Ejercicio 3.1)
-//
-// Datos del enunciado:
-//   Depósito 6m r=5%, Swap 1y r=5.5%, Swap 18m r=6%, Swap 2y r=6.4%
-//   IRS con pata fija y flotante semianual.
-//   Fecha inicial: 01/04/2016
-//
-// Simplificación: dt = 0.5 exacto (como hace el código)
-// Resultados esperados (bootstrapping analítico):
-//   DF(0.5) = 1/(1+0.05*0.5) = 0.975610 → ZC = 4.9385%
-//   DF(1.0) = 0.947125                   → ZC = 5.4324%
-//   DF(1.5) = 0.914872                   → ZC = 5.9314%
-//   DF(2.0) = 0.881004                   → ZC = 6.3346%
-// -----------------------------------------------------------------
+// Bootstrapping de la curva ZC 
 BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
 {
-    // --- Paso 1: Depósito 6M al 5% ---
     // P(0, 0.5) = 1 / (1 + r*t)
     const double depo_rate = 0.05;
     const double dt        = 0.5;
@@ -104,7 +80,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
         BOOST_TEST_MESSAGE("ZC(0.5) = " << res.x * 100.0 << "%");
     }
 
-    // --- Paso 2: Swap 1Y al 5.5% ---
     // 1 = S*dt*DF(0.5) + (1+S*dt)*DF(1.0)
     // DF(1.0) = (1 - S*dt*DF(0.5)) / (1 + S*dt)
     const double s1y = 0.055;
@@ -118,7 +93,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
         BOOST_TEST_MESSAGE("ZC(1.0) = " << calibrated[1.0] * 100.0 << "%");
     }
 
-    // --- Paso 3: Swap 18M al 6% ---
     const double s18m = 0.06;
     {
         auto res = GoalSeeker::solve(
@@ -137,7 +111,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
         BOOST_TEST_MESSAGE("ZC(1.5) = " << res.x * 100.0 << "%");
     }
 
-    // --- Paso 4: Swap 2Y al 6.4% ---
     const double s2y = 0.064;
     {
         auto res = GoalSeeker::solve(
@@ -165,9 +138,7 @@ BOOST_AUTO_TEST_CASE(bootstrap_tema3_exercise)
                boost::test_tools::tolerance(1e-8));
 }
 
-// -----------------------------------------------------------------
-// 5. Bootstrapping desde precios de bonos (recupera curva objetivo)
-// -----------------------------------------------------------------
+// Bootstrapping desde precios de bonos
 BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
 {
     const double r05 = 0.050, r10 = 0.058, r15 = 0.064, r20 = 0.068;
@@ -184,7 +155,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
 
     std::map<double,double> calibrated;
 
-    // Paso 1
     {
         auto res = GoalSeeker::solve([&](double r){
             ZeroCouponCurve c({{0.5,r}});
@@ -193,7 +163,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
         BOOST_TEST(res.converged);
         calibrated[0.5] = res.x;
     }
-    // Paso 2
     {
         auto res = GoalSeeker::solve([&](double r){
             auto zc = calibrated; zc[1.0]=r;
@@ -203,7 +172,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
         BOOST_TEST(res.converged);
         calibrated[1.0] = res.x;
     }
-    // Paso 3
     {
         auto res = GoalSeeker::solve([&](double r){
             auto zc = calibrated; zc[1.5]=r;
@@ -213,7 +181,6 @@ BOOST_AUTO_TEST_CASE(bootstrap_from_bond_prices)
         BOOST_TEST(res.converged);
         calibrated[1.5] = res.x;
     }
-    // Paso 4
     {
         auto res = GoalSeeker::solve([&](double r){
             auto zc = calibrated; zc[2.0]=r;
