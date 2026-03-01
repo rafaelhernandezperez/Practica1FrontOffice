@@ -2,14 +2,16 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
 
-#include <Index/Index.h>
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
-#include <DayCount/daycount.h>
+#include <marketData/Index/Index.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
+#include <utils/DayCount/daycount.h>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <map>
 #include <memory>
 #include <cmath>
+
+BOOST_AUTO_TEST_SUITE(index_suite)
 
 BOOST_AUTO_TEST_CASE(constant_zc_gives_constant_forward_after_conversion)
 {
@@ -33,3 +35,5 @@ BOOST_AUTO_TEST_CASE(constant_zc_gives_constant_forward_after_conversion)
 
     BOOST_TEST(r == expected, boost::test_tools::tolerance(1e-12));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <stdexcept>
-#include <ZeroCouponCurve/ZeroCouponCurve.h>
+#include <marketData/ZeroCouponCurve/ZeroCouponCurve.h>
 
 Index::Index(std::string name,
              std::shared_ptr<const ZeroCouponCurve> curve,
