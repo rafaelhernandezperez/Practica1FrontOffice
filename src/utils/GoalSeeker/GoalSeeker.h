@@ -10,7 +10,6 @@ public:
         bool converged;
     };
 
-    // f(x)=0 con Newton-Raphson (derivada numérica central)
     static Result solve(const std::function<double(double)>& f,
                         double x0,
                         double tol = 1e-12,

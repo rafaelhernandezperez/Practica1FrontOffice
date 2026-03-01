@@ -19,7 +19,7 @@ public:
 
     const Date& ref_date() const { return refDate_; }
 
-    // t medido desde refDate usando daycount (lo usa Index y discounting)
+    // t medido desde refDate usando daycount 
     double time_from_ref(const Date& d) const;
 
     // ZC y DF

@@ -4,7 +4,6 @@
 
 struct InstrumentDescription;
 
-// Abstract builder: cada subclase sabe construir un tipo concreto de IInstrument.
 class InstrumentBuilder {
 public:
     virtual ~InstrumentBuilder() = default;

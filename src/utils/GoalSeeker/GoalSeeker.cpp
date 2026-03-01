@@ -15,10 +15,8 @@ GoalSeeker::Result GoalSeeker::solve(const std::function<double(double)>& f,
             return {x, it, true};
         }
 
-        // derivada numérica central
         const double dfx = (f(x + h) - f(x - h)) / (2.0 * h);
 
-        // evitar división por ~0
         if (std::fabs(dfx) < 1e-14) {
             return {x, it, false};
         }
