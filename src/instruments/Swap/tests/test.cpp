@@ -18,6 +18,7 @@
 #include <utility>
 #include <cmath>
 #include <optional>
+#include <iomanip>
 
 BOOST_AUTO_TEST_SUITE(swap_excel_suite)
 
@@ -28,7 +29,7 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
     // Inputs
     const double N = 100000000.0;
     const double fixedRate = 0.05;
-    const double firstFixing6m = 0.048; 
+    const double firstFixing6m = 0.048;
     const int m = 2; // 6M
 
     // Fecha valoración
@@ -42,7 +43,6 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
     const date d4(2018, 4, 2);
 
     // Curva ZC del Excel (en esas fechas)
-    // Actual/360
     std::map<double,double> zc_by_T;
     zc_by_T[dc->yearFraction(ref, d1)] = 0.0474;
     zc_by_T[dc->yearFraction(ref, d2)] = 0.0500;
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
     // Index 6M
     auto index = std::make_shared<Index>("Euribor6M", m);
 
-    // Periodos (start,end) y pay=end
+    // Periodos (start,end)
     std::vector<std::pair<date,date>> periods = {
         {ref, d1},
         {d1,  d2},
@@ -65,13 +65,28 @@ BOOST_AUTO_TEST_CASE(swap_matches_excel_tema2_example)
     auto fixedLeg = std::make_unique<FixedLeg>(N, fixedRate, dc, periods);
     auto floatLeg = std::make_unique<FloatingLeg>(N, dc, periods, index, true, firstFixing6m);
 
-    Swap swap(std::move(fixedLeg), std::move(floatLeg));
+    // Valorar las legs por separado antes de moverlas al swap
+    const double pvFixed = fixedLeg->price(*curve);
+    const double pvFloat = floatLeg->price(*curve);
 
+    BOOST_TEST_MESSAGE("========================================");
+    BOOST_TEST_MESSAGE(std::fixed << std::setprecision(6)
+        << "PV Fixed Leg  : " << pvFixed);
+    BOOST_TEST_MESSAGE(std::fixed << std::setprecision(6)
+        << "PV Float Leg  : " << pvFloat);
+    BOOST_TEST_MESSAGE(std::fixed << std::setprecision(6)
+        << "PV Swap (Float - Fixed): " << (pvFloat - pvFixed));
+    BOOST_TEST_MESSAGE("========================================");
+
+    Swap swap(std::move(fixedLeg), std::move(floatLeg));
     const double pvSwap = swap.price(*curve);
 
-    // Valor del Excel
-    const double expected = 497431.43214853667;
+    BOOST_TEST_MESSAGE(std::fixed << std::setprecision(6)
+        << "PV Swap (via Swap::price): " << pvSwap);
+    BOOST_TEST_MESSAGE("Expected               : " << std::setprecision(6) << 497431.43214853667);
+    BOOST_TEST_MESSAGE("========================================");
 
+    const double expected = 497431.43214853667;
     BOOST_TEST(pvSwap == expected, boost::test_tools::tolerance(1e-10));
 }
 
