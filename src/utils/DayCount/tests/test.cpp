@@ -14,11 +14,11 @@ BOOST_AUTO_TEST_CASE(actual_360_string_dates)
 
     Actual360 act360;
 
-    auto yf = act360("2016-04-01", "2016-10-01");
+    auto yf = act360("2016-04-01", "2016-10-03");
 
     BOOST_TEST_MESSAGE(" - year fraction: " << yf);
 
-    BOOST_TEST(yf == 183.0/360.0,
+    BOOST_TEST(yf == 185.0/360.0,
                boost::test_tools::tolerance(1e-12));
 }
 
@@ -29,11 +29,11 @@ BOOST_AUTO_TEST_CASE(thirty_360_string_dates)
 
     Thirty360 th360;
 
-    auto yf = th360("2016-04-01", "2016-10-01");
+    auto yf = th360("2016-04-01", "2016-10-03");
 
     BOOST_TEST_MESSAGE(" - year fraction: " << yf);
 
-    BOOST_TEST(yf == 180.0/360.0,
+    BOOST_TEST(yf == 182.0/360.0,
                boost::test_tools::tolerance(1e-12));
 }
 
@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE(actual_360_date_objects)
     Actual360 act360;
 
     date d1(2016, 4, 1);
-    date d2(2016, 10, 1);
+    date d2(2016, 10, 3);
 
     auto yf = act360(d1, d2);
 
     BOOST_TEST_MESSAGE(" - year fraction: " << yf);
 
-    BOOST_TEST(yf == 183.0/360.0,
+    BOOST_TEST(yf == 185.0/360.0,
                boost::test_tools::tolerance(1e-12));
 }
 
@@ -62,9 +62,9 @@ BOOST_AUTO_TEST_CASE(strategy_interface_actual360)
 
     std::unique_ptr<IDayCount> dc = DayCountFactory::create(DayCountType::Actual360);
 
-    double yf = dc->yearFraction(date(2016,4,1), date(2016,10,1));
+    double yf = dc->yearFraction(date(2016,4,1), date(2016,10,3));
 
-    BOOST_TEST(yf == 183.0/360.0,
+    BOOST_TEST(yf == 185.0/360.0,
                boost::test_tools::tolerance(1e-12));
 }
 
@@ -74,9 +74,9 @@ BOOST_AUTO_TEST_CASE(strategy_interface_thirty360)
 
     std::unique_ptr<IDayCount> dc = DayCountFactory::create(DayCountType::Thirty360);
 
-    double yf = dc->yearFraction(date(2016,4,1), date(2016,10,1));
+    double yf = dc->yearFraction(date(2016,4,1), date(2016,10,3));
 
-    BOOST_TEST(yf == 180.0/360.0,
+    BOOST_TEST(yf == 182.0/360.0,
                boost::test_tools::tolerance(1e-12));
 }
 
